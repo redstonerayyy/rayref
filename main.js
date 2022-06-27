@@ -1,29 +1,19 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
-const fs = require('fs')
-const https = require('https')
+const funcs = require('./src/js/main-funcs')
 
+//IPC
+ipcMain.on('download-files', (event, url, filepaths) => {
+    console.log(url);
+    console.log(filepaths);
+    //download urls
+    if (url !== "") {
+        funcs.downloadImage(url);
+    }
+    //store files
 
-function downloadImage(imageUrl) {
-    https.get(imageUrl, (res) => {
-
-        // Open file in local filesystem
-        const file = fs.createWriteStream(`logo.png`);
-
-        // Write data into local file
-        res.pipe(file);
-
-        // Close the file
-        file.on('finish', () => {
-            file.close();
-            console.log(`File downloaded!`);
-        });
-
-    }).on("error", (err) => {
-        console.log("Error: ", err.message);
-    });
-}
+})
 
 const createWindow = () => {
     // Create the browser window.
@@ -31,20 +21,8 @@ const createWindow = () => {
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'src', 'js','preload.js')
         }
-    })
-
-    //IPC
-    ipcMain.on('download-files', (event, url, filepaths) => {
-        console.log(url);
-        console.log(filepaths);
-        //download urls
-        if (url !== "") {
-            downloadImage(url);
-        }
-        //store files
-
     })
 
     mainWindow.loadFile('index.html')
