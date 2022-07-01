@@ -1,70 +1,61 @@
-const { ipcMain } = require('electron');
+const { BrowserWindow } = require('electron');
 const fs = require('fs')
-const https = require('https')
-const os = require('os')
+const https = require('https');
+const os = require('os');
+const path = require('path');
 
-async function downloadImage(imageUrl, dir) {
-    https.get(imageUrl, (res) => {
+function downloadImage(url, dir) {
+    return new Promise((resolve) => {
+        https.get(url, (res) => {
 
-        // Open file in local filesystem
-        const file = fs.createWriteStream(path.Join(dir, imageUrl));
+            // Open file in local filesystem
+            let splitted = url.split("/");
+            console.log(splitted[splitted.length - 1]);
+            const file = fs.createWriteStream(path.join(dir, splitted[splitted.length - 1]));
 
-        // Write data into local file
-        res.pipe(file);
+            // Write data into local file
+            res.pipe(file);
 
-        // Close the file
-        file.on('finish', () => {
-            file.close();
+            // Close the file
+            file.on('finish', () => {
+                file.close();
+                resolve(path.join(dir, splitted[splitted.length - 1]));
+            });
+
+        }).on("error", (err) => {
+            console.log("Error: ", err.message);
         });
-
-    }).on("error", (err) => {
-        console.log("Error: ", err.message);
-    });
-	return path.Join(dir, imageUrl);
+    })
 }
 
-function createImage(path, position){
-	ipcMain.emit('create-image', path, position);
+function createImage(filepath, position) {
+    let currentwindow = BrowserWindow.getFocusedWindow();
+    currentwindow.webContents.send('create-image', filepath, position);
 }
 
-function addUrl(url, position){
+function addUrl(event, url, position) {
     //download url
-    funcs.downloadImage(url, os.tmpdir()).then((path) => {
-        console.log(path);
-        addImage(path, position);
+    downloadImage(url, "").then((filepath) => {
+        createImage(filepath, position);
     });
 }
 
-function addFile(){
-
-}
-
-function addImages(event, url, filepaths) {
-    console.log(url);
-    console.log(filepaths);
-    //download url
-    funcs.downloadImage(url, os.tmpdir()).then((path) => {
-        console.log(path);
-        addImage(path);
-    });
-    //store files
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file !== ""){
-            fs.stat(file, (err, stats) => {
-                if (err){
-                    console.log(err, file);
-                } else {
-                    if(!stats.isDirectory()){
-                        addImage(file);
-                    }
+function addFile(event, file, position) {
+    //store file
+    if (file !== "") {
+        fs.stat(file, (err, stats) => {
+            if (err) {
+                console.log(err, file);
+            } else {
+                if (!stats.isDirectory()) {
+                    createImage(file, position);
                 }
-            })
-        }
+            }
+        })
     }
 }
 
 module.exports = {
-	downloadImage,
-	addImages
+    addUrl,
+    addFile,
 }

@@ -1,9 +1,7 @@
-const { ipcRenderer } = require("electron");
-
-
 //image drag in
 let body = document.querySelector("body");
 
+//image drop in
 document.addEventListener('drop', (event) => {
     //unhightlight when dropping
     body.style.border = "";
@@ -12,9 +10,11 @@ document.addEventListener('drop', (event) => {
     event.stopPropagation();
 
     //url
-    let imageurl = event.dataTransfer.getData('url');
+    let url = event.dataTransfer.getData('url');
     //files
-    let files = []
+    let files = [];
+    //let
+    position = [event.clientX, event.clientY];
 
     for (const f of event.dataTransfer.files) {
         // Using the path attribute to get absolute file path
@@ -22,7 +22,7 @@ document.addEventListener('drop', (event) => {
             files.push(f.path);
         }
     }
-    
+
     //check
     if (url !== "") {
         window.storage.addUrl(url, position);
@@ -30,7 +30,7 @@ document.addEventListener('drop', (event) => {
     //store files
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file !== ""){
+        if (file !== "") {
             window.storage.addFile(file, position);
         }
     }
@@ -53,8 +53,12 @@ document.addEventListener('dragleave', (event) => {
     body.style.border = "";
 });
 
-
-//add images
-ipcRenderer.on('create-image', (ev, path) => {
-
-});
+window.images.createImage((event, filepath, position) => {
+    console.log("test");
+    let image = document.createElement('img');
+    image.src = filepath;
+    image.className = "ref-img";
+    image.style.left = `${position[0]}px`
+    image.style.top = `${position[1]}px`;
+    document.querySelector('body').append(image);
+})
