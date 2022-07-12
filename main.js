@@ -21,20 +21,27 @@ const createWindow = () => {
         }
     })
 
-    // const menu = Menu.buildFromTemplate([
-    //     {
-    //         label: app.name,
-    //         submenu: [
-    //             {
-    //                 click: () => mainWindow.webContents.send('create-image', 1),
-    //                 label: 'Send',
-    //             }
-    //         ]
-    //     }
+    const menu = Menu.buildFromTemplate([
+        {
+            label: 'File',
+            submenu: [
+                {
+                    click: () => mainWindow.webContents.send('save-as'),
+                    label: 'Save As',
+                },
+                {
+                    click: () => mainWindow.webContents.send('save'),
+                    label: 'Save',
+                },
+                {
+                    click: () => mainWindow.webContents.send('open'),
+                    label: 'Open',
+                },
+            ]
+        }
+    ]);
 
-    // ])
-
-    // Menu.setApplicationMenu(menu)
+    Menu.setApplicationMenu(menu)
 
     mainWindow.loadFile('index.html')
     mainWindow.webContents.openDevTools()
