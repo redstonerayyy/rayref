@@ -10,7 +10,6 @@ function downloadImage(url, dir) {
 
             // Open file in local filesystem
             let splitted = url.split("/");
-            console.log(splitted[splitted.length - 1]);
             const file = fs.createWriteStream(path.join(dir, splitted[splitted.length - 1]));
 
             // Write data into local file
@@ -35,9 +34,11 @@ function createImage(filepath, position) {
 
 function addUrl(event, url, position) {
     //download url
-    downloadImage(url, "").then((filepath) => {
-        createImage(filepath, position);
-    });
+    downloadImage(url, os.tmpdir())
+        .then((filepath) => {
+            createImage(filepath, position);
+        })
+        .catch();
 }
 
 function addFile(event, file, position) {
@@ -55,7 +56,15 @@ function addFile(event, file, position) {
     }
 }
 
+function saveAs(event, imgdata) {
+    imgdata.forEach(img => {
+        console.log(img.filepath, img.position);
+    });
+    console.log(imgdata);
+}
+
 module.exports = {
     addUrl,
     addFile,
+    saveAs,
 }

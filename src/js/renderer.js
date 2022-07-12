@@ -46,9 +46,9 @@ let images = []
 let scale = 1;
 
 window.images.createImage((event, filepath, position) => {
+    console.log(filepath);
     images.push(new Image(filepath, position, document.querySelector('.img-container'), scale));
 });
-
 
 //zoom
 document.addEventListener('wheel', (event) => {
@@ -95,6 +95,16 @@ imgcontainer.addEventListener('mousedown', (event) => {
     } else {
         if (event.which == 3) {
             //rightclick on container
+            let savedata = [];
+            images.forEach(img => {
+                let data = {
+                    "filepath": img.filepath,
+                    "position": img.position,
+                };
+                savedata.push(data);
+            });
+
+            window.storage.saveAs(savedata);
         } else {
             lastdown = [event.clientX, event.clientY]
             mousedown = true;
@@ -114,11 +124,13 @@ imgcontainer.addEventListener('mousemove', (event) => {
 })
 
 imgcontainer.addEventListener('mouseup', (event) => {
-    console.log('up');
-    mousedown = false;
-    let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
-    images.forEach(img => {
-        let newpos = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
-        img.setPosition(newpos);
-    });
+    if (event.which == 1) {
+        console.log('up');
+        mousedown = false;
+        let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
+        images.forEach(img => {
+            let newpos = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
+            img.setPosition(newpos);
+        });
+    }
 })

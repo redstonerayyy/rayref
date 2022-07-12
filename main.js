@@ -10,6 +10,7 @@ app.disableHardwareAcceleration();
 //IPC
 ipcMain.on('add-url', funcs.addUrl);
 ipcMain.on('add-file', funcs.addFile);
+ipcMain.handle('save-as', funcs.saveAs);
 
 const createWindow = () => {
     // Create the browser window.
@@ -20,28 +21,6 @@ const createWindow = () => {
             preload: path.join(__dirname, 'src', 'js', 'preload.js')
         }
     })
-
-    const menu = Menu.buildFromTemplate([
-        {
-            label: 'File',
-            submenu: [
-                {
-                    click: () => mainWindow.webContents.send('save-as'),
-                    label: 'Save As',
-                },
-                {
-                    click: () => mainWindow.webContents.send('save'),
-                    label: 'Save',
-                },
-                {
-                    click: () => mainWindow.webContents.send('open'),
-                    label: 'Open',
-                },
-            ]
-        }
-    ]);
-
-    Menu.setApplicationMenu(menu)
 
     mainWindow.loadFile('index.html')
     mainWindow.webContents.openDevTools()
