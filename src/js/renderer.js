@@ -85,8 +85,11 @@ let imgcontainer = document.querySelector('.img-container');
 
 let lastdown = [null, null];
 let mousedown = false;
+let moveclick = false;
 
 imgcontainer.addEventListener('mousedown', (event) => {
+    // console.log("down");
+    mousedown = true;
     if (event.target.className == "ref-img") {
         if (event.which == 3) {
             //rightclick on image
@@ -107,16 +110,16 @@ imgcontainer.addEventListener('mousedown', (event) => {
 
             window.storage.saveAs(savedata);
         } else {
+            moveclick = true;
             lastdown = [event.clientX, event.clientY]
-            mousedown = true;
         }
     }
 });
 
 imgcontainer.addEventListener('mousemove', (event) => {
-    if (mousedown) {
+    // console.log("move");
+    if (mousedown && moveclick) {
         let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
-
         images.forEach(img => {
             let newpos = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
             img.setViewPosition(newpos);
@@ -125,18 +128,37 @@ imgcontainer.addEventListener('mousemove', (event) => {
 })
 
 imgcontainer.addEventListener('mouseup', (event) => {
+    // console.log("up");
+    mousedown = false;
+    moveclick = false;
+    if (event.target.className == "ref-img") {
+        if (event.which == 3) {
+            //rightclick on image
+            return;
+        } else {
+            return;
+        }
+    } else {
+        if (event.which == 3) {
+            //rightclick on container
+            return;
+        } else {
+            let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
+
+            images.forEach(img => {
+                img.position = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
+                img.cordposition = img.multiplyVector(
+                    img.positionToCord(img.position),
+                    1 / scale
+                );
+                img.setViewPosition(img.position);
+            });
+        }
+    }
+
+
     if (event.which == 1) {
-        mousedown = false;
+        ;
 
-        let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
-
-        images.forEach(img => {
-            img.position = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
-            img.cordposition = img.multiplyVector(
-                img.positionToCord(img.position),
-                1 / scale
-            );
-            img.setViewPosition(img.position);
-        });
     }
 })

@@ -45,7 +45,6 @@ export default class Image {
 		//image scale changed
 		this.image.width = this.defaultWidth * imgscale;
 
-		console.log(this.position);
 		//change position
 		this.position = this.cordToPosition(
 			this.multiplyVector(
@@ -53,7 +52,6 @@ export default class Image {
 				imgscale,
 			)
 		);
-		console.log(this.position);
 		this.setViewPosition(this.position);
 	}
 
@@ -79,7 +77,6 @@ export default class Image {
 			vec[0] * scalar,
 			vec[1] * scalar,
 		];
-		console.log(newvec);
 		return newvec;
 	}
 }
