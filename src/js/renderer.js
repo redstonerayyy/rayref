@@ -23,6 +23,9 @@ document.addEventListener('drop', (event) => {
             files.push(f.path);
         }
     }
+    if (url.includes("http")) {
+        files = [];
+    }
 
     //check
     if (url !== "") {
@@ -45,26 +48,28 @@ document.addEventListener('dragover', (e) => {
 
 let images = []
 let scale = 1;
+let counter = 0;
 
 window.images.createImage((event, filepath, position) => {
-    images.push(new Image(filepath, position, document.querySelector('.img-container'), scale));
+    images.push(new Image(filepath, position, counter, document.querySelector('.img-container'), scale));
+    counter += 1;
 });
 
 //zoom
 document.addEventListener('wheel', (event) => {
-    if (event.deltaY < 0) {
+    if (event.deltaY > 0) {
         // Zoom in
         if (event.ctrlKey) {
-            scale += 0.09;
+            scale += 0.04;
         }
-        scale -= 0.1;
+        scale -= 0.05;
     }
     else {
         // Zoom out
         if (event.ctrlKey) {
-            scale -= 0.09;
+            scale -= 0.04;
         }
-        scale += 0.1;
+        scale += 0.05;
     }
 
     if (scale > 20) {
@@ -86,14 +91,18 @@ let imgcontainer = document.querySelector('.img-container');
 let lastdown = [null, null];
 let mousedown = false;
 let moveclick = false;
+let imgclick = false;
+let imgid = "";
 
 imgcontainer.addEventListener('mousedown', (event) => {
-    // console.log("down");
     mousedown = true;
     if (event.target.className == "ref-img") {
         if (event.which == 3) {
             //rightclick on image
         } else {
+            imgclick = true;
+            imgid = event.target.id;
+            console.log(imgid);
             return;
         }
     } else {
@@ -104,6 +113,9 @@ imgcontainer.addEventListener('mousedown', (event) => {
                 let data = {
                     "filepath": img.filepath,
                     "position": img.position,
+                    "id": img.id,
+                    "cordposition": img.cordposition,
+                    "scale": img.scale,
                 };
                 savedata.push(data);
             });
@@ -117,7 +129,6 @@ imgcontainer.addEventListener('mousedown', (event) => {
 });
 
 imgcontainer.addEventListener('mousemove', (event) => {
-    // console.log("move");
     if (mousedown && moveclick) {
         let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
         images.forEach(img => {
@@ -125,12 +136,25 @@ imgcontainer.addEventListener('mousemove', (event) => {
             img.setViewPosition(newpos);
         });
     }
+
+    if (mousedown && imgclick) {
+        images.forEach(img => {
+            if (img.id == imgid) {
+                img.position = [event.clientX, event.clientY];
+                img.cordposition = img.multiplyVector(
+                    img.positionToCord(img.position),
+                    1 / img.scale
+                );
+                img.setViewPosition(img.position);
+            }
+        });
+    }
 })
 
 imgcontainer.addEventListener('mouseup', (event) => {
-    // console.log("up");
     mousedown = false;
     moveclick = false;
+    imgclick = false;
     if (event.target.className == "ref-img") {
         if (event.which == 3) {
             //rightclick on image
@@ -155,10 +179,18 @@ imgcontainer.addEventListener('mouseup', (event) => {
             });
         }
     }
+})
 
-
-    if (event.which == 1) {
-        ;
-
+document.addEventListener('keydown', async (event) => {
+    if (event.key == "o" && event.ctrlKey) {
+        let data = await window.storage.openFile();
+        //set scale
+        console.log(data);
+        scale = data[0].images[0].scale;
+        //add images
+        data[0].images.forEach((img, index) => {
+            images.push(new Image(img.filepath, img.position, img.id, document.querySelector('.img-container'), img.scale));
+            images[index].cordposition = img.cordposition;
+        });
     }
 })

@@ -19,5 +19,7 @@ body {
 
 .ref-img {
     position: absolute;
+    user-select: none;
+    -webkit-user-drag: none;
     transform: translateX(-50%) translateY(-50%);
 }

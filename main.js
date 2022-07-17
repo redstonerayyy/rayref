@@ -11,6 +11,8 @@ app.disableHardwareAcceleration();
 ipcMain.on('add-url', funcs.addUrl);
 ipcMain.on('add-file', funcs.addFile);
 ipcMain.handle('save-as', funcs.saveAs);
+ipcMain.handle('open-file', funcs.openFile);
+
 
 const createWindow = () => {
     // Create the browser window.
@@ -22,6 +24,7 @@ const createWindow = () => {
         }
     })
 
+    Menu.setApplicationMenu(null);
     mainWindow.loadFile('index.html')
     mainWindow.webContents.openDevTools()
     return mainWindow;

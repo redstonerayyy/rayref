@@ -1,7 +1,8 @@
 export default class Image {
-	constructor(filepath, position, parent, initialscale) {
+	constructor(filepath, position, id, parent, initialscale) {
 		this.filepath = filepath;
 		this.parent = parent;
+		this.id = id;
 
 		//position
 		this.position = position;
@@ -19,7 +20,9 @@ export default class Image {
 		//create img
 		this.image = document.createElement('img');
 		this.image.src = filepath;
+		this.image.draggable = "false";
 		this.image.className = "ref-img";
+		this.image.id = `${this.id}`;
 		this.image.style.left = `${position[0]}px`;
 		this.image.style.top = `${position[1]}px`;
 		this.parent.append(this.image);
@@ -30,15 +33,23 @@ export default class Image {
 			this.updateScale(this.initialscale);
 		}
 
-		//new position when dragging
-		this.image.ondragend = (event) => {
-			this.position = [event.clientX, event.clientY];
-			this.cordposition = this.multiplyVector(
-				this.positionToCord(this.position),
-				1 / this.scale
-			);
-			this.setViewPosition(this.position);
-		}
+		// this.invisible = document.createElement('img');
+		// this.invisible.src = 'transparent.png';
+		// //set invisible image
+		// this.image.ondragstart = (event) => {
+		// 	event.dataTransfer.setDragImage(this.invisible, 0, 0);
+		// }
+
+		// //new position when dragging
+		// this.image.ondrag = (event) => {
+		// 	//movement
+		// 	this.position = [event.clientX, event.clientY];
+		// 	this.cordposition = this.multiplyVector(
+		// 		this.positionToCord(this.position),
+		// 		1 / this.scale
+		// 	);
+		// 	this.setViewPosition(this.position);
+		// }
 	}
 
 	updateScale(imgscale) {
