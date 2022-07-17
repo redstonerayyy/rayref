@@ -8,6 +8,7 @@ document.addEventListener('drop', (event) => {
     //prevent default
     event.preventDefault();
     event.stopPropagation();
+    if (event.dataTransfer.getData('url').includes('file://')) return;
 
     //url
     let url = event.dataTransfer.getData('url');
@@ -46,7 +47,6 @@ let images = []
 let scale = 1;
 
 window.images.createImage((event, filepath, position) => {
-    console.log(filepath);
     images.push(new Image(filepath, position, document.querySelector('.img-container'), scale));
 });
 
@@ -76,13 +76,14 @@ document.addEventListener('wheel', (event) => {
     }
 
     images.forEach(img => {
+        img.scale = scale;
         img.updateScale(scale);
     });
 });
 
 let imgcontainer = document.querySelector('.img-container');
 
-let lastdown = [0, 0];
+let lastdown = [null, null];
 let mousedown = false;
 
 imgcontainer.addEventListener('mousedown', (event) => {
@@ -113,24 +114,29 @@ imgcontainer.addEventListener('mousedown', (event) => {
 });
 
 imgcontainer.addEventListener('mousemove', (event) => {
-    console.log('move');
     if (mousedown) {
         let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
+
         images.forEach(img => {
             let newpos = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
-            img.viewPosition(newpos);
+            img.setViewPosition(newpos);
         });
     }
 })
 
 imgcontainer.addEventListener('mouseup', (event) => {
     if (event.which == 1) {
-        console.log('up');
         mousedown = false;
+
         let movevector = [event.clientX - lastdown[0], event.clientY - lastdown[1]];
+
         images.forEach(img => {
-            let newpos = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
-            img.setPosition(newpos);
+            img.position = [img.position[0] + movevector[0], img.position[1] + movevector[1]];
+            img.cordposition = img.multiplyVector(
+                img.positionToCord(img.position),
+                1 / scale
+            );
+            img.setViewPosition(img.position);
         });
     }
 })

@@ -1,11 +1,12 @@
 const { BrowserWindow } = require('electron');
 const fs = require('fs')
 const https = require('https');
+const { reject } = require('lodash');
 const os = require('os');
 const path = require('path');
 
 function downloadImage(url, dir) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         https.get(url, (res) => {
 
             // Open file in local filesystem
@@ -23,6 +24,7 @@ function downloadImage(url, dir) {
 
         }).on("error", (err) => {
             console.log("Error: ", err.message);
+            reject();
         });
     })
 }
