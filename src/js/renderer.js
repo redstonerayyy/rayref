@@ -94,7 +94,7 @@ let moveclick = false;
 let imgclick = false;
 let imgid = "";
 
-imgcontainer.addEventListener('mousedown', (event) => {
+imgcontainer.addEventListener('mousedown', async (event) => {
     mousedown = true;
     if (event.target.className == "ref-img") {
         if (event.which == 3) {
@@ -120,7 +120,8 @@ imgcontainer.addEventListener('mousedown', (event) => {
                 savedata.push(data);
             });
 
-            window.storage.saveAs(savedata);
+            let title = await window.storage.saveAs(savedata);
+            document.querySelector('title').innerHTML = title;
         } else {
             moveclick = true;
             lastdown = [event.clientX, event.clientY]
@@ -185,8 +186,11 @@ document.addEventListener('keydown', async (event) => {
     if (event.key == "o" && event.ctrlKey) {
         let data = await window.storage.openFile();
         //set scale
-        console.log(data);
         scale = data[0].images[0].scale;
+
+        let title = data[0].filename;
+        document.querySelector('title').innerHTML = title;
+
         //add images
         data[0].images.forEach((img, index) => {
             images.push(new Image(img.filepath, img.position, img.id, document.querySelector('.img-container'), img.scale));

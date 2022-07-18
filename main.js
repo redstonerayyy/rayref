@@ -26,7 +26,7 @@ const createWindow = () => {
 
     Menu.setApplicationMenu(null);
     mainWindow.loadFile('index.html')
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
     return mainWindow;
 }
 

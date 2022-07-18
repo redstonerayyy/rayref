@@ -85,6 +85,9 @@ function saveAs(event, imgdata) {
         img["name"] = path.basename(img.filepath);
     });
 
+    //filename
+    imgdata["filename"] = currentfile;
+
     //add info file
     var content = {
         "images": imgdata,
@@ -99,6 +102,7 @@ function saveAs(event, imgdata) {
 
     //write zip
     zip.writeZip(`${savepath}`);
+    return path.basename(savepath);
 }
 
 function openFile() {
